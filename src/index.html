@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HuggingGPT</title>
+    <base href="http://localhost:3000/">
+
+    <style>
+        .header {
+            display: flex;
+            align-items: center;
+        }
+        .header img {
+            width: 70px;
+            height: 60px;
+        }
+        .header h2 {
+            color: #545454;
+
+        }
+        .header input[type="button"] {
+            padding: 7px 15px;
+            padding: 7px 15px;
+            background-color: #007bff;
+            margin-left: 20px;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            max-height: 760px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            height: 700px;
+            max-height: 900vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        .input-box {
+            display: flex;
+        }
+        .input-box input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+        .input-box input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .bot-message {
+            color: #3f3f3f;
+            margin-bottom: 10px;
+        }
+        .user-message {
+            color: #3f3f3f;
+            background-color: #c6e2ff; /* фон сообщения пользователя */
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .bot-message {
+            background-color: #e2f0cb; /* фон сообщения бота */
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img alt="HuggingChat logo" src="https://huggingface.co/chat/huggingchat/logo.svg">
+        <h2>HuggingGPT</h2>
+        <input type="button" value="Очистить чат" onclick="clearChat()">
+    </div>
+    <div class="chat-box" id="chatBox">
+        <!-- Chat messages will appear here -->
+    </div>
+    <div class="input-box">
+        <input type="text" id="messageInput" placeholder="Type your message...">
+        <input type="submit" value="Send" onclick="sendMessage()">
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+<script>
+    const socket = io('/');
+
+    socket.on("message", (message) => {
+        appendMessage("ЧатГПТ", message, "bot-message");
+    });
+    function sendMessage() {
+        var messageInput = document.getElementById("messageInput");
+        var message = messageInput.value.trim();
+        if (message !== "") {
+            appendMessage("Вы", message, "user-message");
+            socket.emit("message", message);
+            getBotResponse(message);
+            messageInput.value = "";
+        }
+    }
+
+    function appendMessage(sender, message, messageClass) {
+        var chatBox = document.getElementById("chatBox");
+        var messageElement = document.createElement("div");
+        messageElement.classList.add(messageClass);
+        messageElement.innerHTML = "<strong>" + sender + ":</strong> " + message;
+        chatBox.appendChild(messageElement);
+    }
+
+    function clearChat() {
+        var chatBox = document.getElementById("chatBox");
+        socket.emit('clearChat');
+        chatBox.innerHTML = "";
+    }
+</script>
+</body>
+</html>
